@@ -19,19 +19,23 @@ fn main() {
     let mut counter: u32 = 0;
 
     // initialize regular expressions
-    let single_digit_re: Regex = Regex::new("[0-9]{1}").unwrap();
+    let single_digit_re: Regex = Regex::new("^[0-9]{1}").unwrap();
     let part_two_matches: Vec<_> = vec!["1", "2", "3", "4", "5", "6", "7", "8", "9",
         "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", ""];
-    let part_two_re_text: String = part_two_matches.join("{1}|")
-        .strip_suffix("|").unwrap().to_string();
+    let mut part_two_re_text: String = part_two_matches.join("{1}|^")
+        .strip_suffix("|^").unwrap().to_string();
+    part_two_re_text.insert(0, '^');
     let complex_re: Regex = Regex::new(&part_two_re_text).unwrap();
     let re: Regex = if part1 {single_digit_re} else {complex_re};
 
     // iterate over each line
     for line in lines {
         // find hits in this line
-        let digit_hits: Vec<&str> = re.find_iter(line)
-            .map(|m| m.as_str()).collect();
+        // search each substring of the line starting with the full line
+        // we have to do it this way to find overlapping pattern matches
+        let digit_hits: Vec<&str> = line.char_indices()
+            .filter_map(|(i, _)| re.find(&line[i..]))
+            .map(|y| y.as_str()).collect();
         // get first digit
         let first_digit: String = if digit_hits[0].to_string().len() > 1 {
             // complex hit
