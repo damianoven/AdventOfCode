@@ -14,8 +14,7 @@ fn main() {
 
     // create regex
     let num_re: Regex = Regex::new("[0-9]+").unwrap();
-    let pull_re = colors.map(
-        |x| Regex::new(format!("[0-9]+ {x}").as_str()).unwrap());
+    let pull_re = colors.map(|x| Regex::new(format!("[0-9]+ {x}").as_str()).unwrap());
     
     // load input
     let lines: Vec<String> = load_input("input.txt");
@@ -25,9 +24,9 @@ fn main() {
         // get the max value for each color on this line
         let max_pulls: Vec<usize> = pull_re.iter()
             .map(|x| x.find_iter(line)
-                .map(|y|num_re.find(y.as_str()).unwrap()
-                .as_str().parse::<usize>().unwrap()).max_set())
-                .map(|z| z[0]).collect();
+            .map(|y|num_re.find(y.as_str()).unwrap()
+            .as_str().parse::<usize>().unwrap()).max_set())
+            .map(|z| z[0]).collect();
         // part one
         let game_valid = all(0..colors.len(),
                 |a| max_pulls[a]<=max_quantities[a]);
