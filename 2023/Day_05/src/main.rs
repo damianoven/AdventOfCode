@@ -12,15 +12,23 @@ fn main() {
     // load maps
     let maps: Vec<Vec<usize>> = map_names.iter().
         map(|&x| load_group("input.txt", x)).collect();
-    // copy seeds
-    let mut part_one_vals: Vec<usize> = seeds.clone();
-    for map_idx in 0..maps.len() {
-        for val_idx in 0..part_one_vals.len() {
-            part_one_vals[val_idx] = map_value(&maps[map_idx], part_one_vals[val_idx]);
-        }
-    }
     // part one
+    let part_one_vals: Vec<usize> = seeds.iter().map(|&x| do_all_maps(&maps, x)).collect();
     println!("Part 1: {}", part_one_vals.iter().min().unwrap());
+    // part two
+    let mut current_min: usize = usize::MAX;
+    (0..seeds.len()/2).for_each(|x| (seeds[x*2]..seeds[x*2]+seeds[x*2+1])
+        .for_each(|y| if do_all_maps(&maps, y) < current_min {current_min = do_all_maps(&maps, y)}));
+    println!("Part 2: {}", current_min);
+}
+
+fn do_all_maps(maps: &Vec<Vec<usize>>, val:usize) -> usize {
+    // apply all maps successively to this value
+    let mut temp_val = val;
+    for map in maps {
+        temp_val = map_value(&map, temp_val);
+    }
+    temp_val
 }
 
 fn map_value(map: &Vec<usize>, val: usize) -> usize {
