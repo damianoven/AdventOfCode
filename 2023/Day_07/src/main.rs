@@ -11,6 +11,17 @@ impl Hand {
         // bin the cards
         let mut bins: [u8; 15] = [0; 15];
         self.cards.iter().for_each(|&f| bins[f as usize] += 1);
+        // add jokers to max bin
+        let num_joker: u8 = bins[1];
+        if num_joker > 0 {
+            // find max bin
+            let idx_max = (2..bins.len())
+                .find(|&x| bins[x] == *bins[2..].iter().max().unwrap())
+                .unwrap();
+            // add jokers to max bin
+            bins[idx_max] += num_joker;
+            bins[1] = 0;
+        }
         // figure out the group
         let bins_compact: Vec<u8> = bins.iter().filter(|&&w| w > 0).map(|u| *u).collect();
         let max_bin: u8 = *bins_compact.iter().max().unwrap();
@@ -93,7 +104,7 @@ fn interp_char(input: char) -> u8 {
         'A' => 14 as u8,
         'K' => 13 as u8,
         'Q' => 12 as u8,
-        'J' => 11 as u8,
+        'J' =>  1 as u8, //11 as u8,
         'T' => 10 as u8,
         _ => input.to_string().parse::<u8>().unwrap(),
     }
