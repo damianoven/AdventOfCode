@@ -8,16 +8,52 @@ fn main() {
     // Part 1, 2
     let mut num_total: usize = 0;
     for (i, entry) in input.iter().enumerate() {
-        // initialize valid case counter
-        let mut valid_cases: usize = 0;
-        // create regex for this group pattern
-        let group_re = build_regex(&entry.1);
-        gen_cases(&mut valid_cases, &entry.0, &entry.1, &group_re);
-        num_total += valid_cases;
-        println!("[Case {:04}] Valid: {}", i, valid_cases);
+        num_total += num_valid(&entry.0, 0, entry.1.clone());
+        println!("[Case {:04}] done", i);
     }
     println!("Part 1: {}", num_total);
 }
+
+fn num_valid(case: &String, start_idx: usize, group_sizes: Vec<usize>) -> usize {
+    // constants
+    let hash: String = "#".to_string();
+    // min number of entries to satisfy groups
+    let min_len: usize = group_sizes.iter().sum::<usize>() + group_sizes.len();
+    // characters available
+    let chars_available: usize = case.len() - start_idx;
+    // if there isn't room, then return 0
+    if min_len > chars_available {
+        return 0;
+    }
+    // check if base case
+    if group_sizes.len() == 1 {
+        // calculate how many ways the entry can fit in the remaining characters
+        return (start_idx..case.len()-group_sizes[0])
+            .filter(|&x| 
+                !case[start_idx..x].contains("#") &&
+                !case[x+group_sizes[0]+1..].contains("#") &&
+                !case[x..x+group_sizes[0]].contains("O") && 
+                case[x+group_sizes[0]..x+group_sizes[0]+1]!=hash).count();
+    } else {
+        // adjust the first group from the first position to the last available position
+        let mut running_total: usize = 0;
+        for i in start_idx..case.len()-min_len+1 {
+            // check if we went too far
+            if case[start_idx..i].contains("#") {
+                break;
+            }
+            // check if the first group can fit here
+            if !case[i..i+group_sizes[0]].contains("O") && 
+                case[i+group_sizes[0]..i+group_sizes[0]+1]!=hash && 1==1 {
+                // this is valid, leave the first group here and recurse on remaining groups
+                running_total += num_valid(case, i+group_sizes[0]+1, group_sizes[1..].to_vec());
+            }
+        }
+        return running_total;
+    }
+}
+
+
 
 fn build_regex(group_sizes: &Vec<usize>) -> Regex {
     let group_matches: Vec<String> = group_sizes.iter()
@@ -29,6 +65,7 @@ fn build_regex(group_sizes: &Vec<usize>) -> Regex {
 }
 
 fn gen_cases(valid_cases: &mut usize, current_case: &String, group_sizes: &Vec<usize>, group_re: &Regex) {
+    // check if 
     // check if this case is impossible
     if !group_re.is_match(&current_case) {
         // this does not work
