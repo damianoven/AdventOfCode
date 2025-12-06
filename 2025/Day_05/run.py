@@ -21,13 +21,14 @@ print(sum(np.any(is_in_range(validRanges[:,0],validRanges[:,1],testValues),0)))
 
 # part 2
 
-# if any range is completely contained inside another range,
-# remove it from the list of ranges
-startContained = is_in_range(validRanges[:,0],validRanges[:,1],validRanges[:,0])*1-np.identity(len(validRanges))
+# remove duplicates
+validRanges = np.unique(validRanges,axis=0)
+
+# if a range has the same start value and lower end value than another range,
+# remove it from the list to prevent undercounting in the next step
+startEqual = is_in_range(validRanges[:,0],validRanges[:,0],validRanges[:,0])*1-np.identity(len(validRanges))
 stopContained = is_in_range(validRanges[:,0],validRanges[:,1],validRanges[:,1])*1-np.identity(len(validRanges))
-print(startContained)
-print(startContained.astype('bool'))
-idxRemove = np.any(startContained.astype('bool') & stopContained.astype('bool'),0)
+idxRemove = np.any(startEqual.astype('bool') & stopContained.astype('bool'),0)
 validRanges = np.delete(validRanges,idxRemove,0)
 
 # if any starting value is itself within a range, move it
